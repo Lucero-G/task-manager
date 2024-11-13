@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Tareas</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Gestión de Tareas</h1>
+    <form id="task-form" method="POST" action="/tasks">
+      <div>
+        <label for="title">Título:</label>
+        <input type="text" id="title" name="title" required>
+      </div>
+      <div>
+        <label for="description">Descripción:</label>
+        <textarea id="description" name="description" required></textarea>
+      </div>
+      <div>
+        <label for="status">Estado:</label>
+        <select id="status" name="status">
+          <option value="Pendiente">Pendiente</option>
+          <option value="Completada">Completada</option>
+        </select>
+      </div>
+      <div>
+        <label for="due_date">Fecha de vencimiento:</label>
+        <input type="date" id="due_date" name="due_date" required>
+      </div>
+      <button type="submit">Agregar tarea</button>
+    </form>
+
+    <h2>Tareas</h2>
+    <ul id="task-list">
+      <% tasks.forEach(task => { %>
+        <li>
+          <strong><%= task.title %></strong> - <%= task.status %> <br>
+          <%= task.description %> <br>
+          <small>Vence: <%= task.due_date %></small>
+          <button class="delete-btn" data-id="<%= task.id %>">Eliminar</button>
+        </li>
+      <% }); %>
+    </ul>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      $('.delete-btn').click(function () {
+        const taskId = $(this).data('id');
+        $.ajax({
+          url: '/tasks/' + taskId,
+          method: 'DELETE',
+          success: function () {
+            location.reload();  // Recargar la página después de eliminar la tarea
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
