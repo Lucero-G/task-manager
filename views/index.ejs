@@ -58,6 +58,7 @@
                 <strong>${task.title}</strong> - ${task.status} <br>
                 ${task.description} <br>
                 <small>Vence: ${dueDate}</small>
+                <button class="edit-btn" data-id="${task.id}" data-title="${task.title}" data-description="${task.description}" data-status="${task.status}" data-due-date="${task.due_date}">Editar</button>
                 <button class="delete-btn" data-id="${task.id}">Eliminar</button>
               </li>
             `);
@@ -88,30 +89,72 @@
         });
       });
 
-      // Maneja el envío del formulario para agregar una nueva tarea
-      $('#task-form').submit(function (event) {
-        event.preventDefault();
-        const newTask = {
-          title: $('#title').val(),
-          description: $('#description').val(),
-          status: $('#status').val(),
-          due_date: $('#due_date').val()
-        };
-        $.ajax({
-          url: '/tasks',
-          method: 'POST',
-          contentType: 'application/json',
-          data: JSON.stringify(newTask),
-          success: function () {
-            loadTasks(); // Recarga la lista de tareas después de agregar una nueva tarea
-            $('#task-form')[0].reset(); // Limpia el formulario
-          },
-          error: function (error) {
-            console.error('Error al agregar la tarea:', error);
-          }
-        });
+      // Maneja el envío del formulario para agregar o editar una tarea
+  $('#task-form').submit(function (event) {
+    event.preventDefault();
+
+    const taskId = $('#task-form').data('id'); // Obtener el ID de la tarea si estamos editando
+    const newTask = {
+      title: $('#title').val(),
+      description: $('#description').val(),
+      status: $('#status').val(),
+      due_date: $('#due_date').val()
+    };
+
+    if (taskId) { // Si hay un ID, es una edición
+      $.ajax({
+        url: '/tasks/' + taskId,
+        method: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify(newTask),
+        success: function () {
+          loadTasks(); // Recarga la lista de tareas después de editar
+          $('#task-form')[0].reset(); // Limpia el formulario
+          $('#task-form').removeData('id'); // Limpiar el ID de edición
+        },
+        error: function (error) {
+          console.error('Error al editar la tarea:', error);
+        }
       });
-    });
+    } else { // Si no hay ID, es una tarea nueva
+      $.ajax({
+        url: '/tasks',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(newTask),
+        success: function () {
+          loadTasks(); // Recarga la lista de tareas después de agregar una nueva tarea
+          $('#task-form')[0].reset(); // Limpia el formulario
+        },
+        error: function (error) {
+          console.error('Error al agregar la tarea:', error);
+        }
+      });
+    }
+  });
+
+  // Maneja la acción de editar una tarea
+  $('#task-list').on('click', '.edit-btn', function () {
+    const taskId = $(this).data('id');
+    const title = $(this).data('title');
+    const description = $(this).data('description');
+    const status = $(this).data('status');
+    const dueDate = $(this).data('due-date');
+
+    // Si la fecha incluye hora, limpiamos la parte de la hora
+    const formattedDate = dueDate.split('T')[0]; // Esto se asegura de que solo quede la parte de la fecha 'YYYY-MM-DD'
+
+    // Cargar los datos de la tarea en el formulario
+    $('#title').val(title);
+    $('#description').val(description);
+    $('#status').val(status);
+    $('#due_date').val(formattedDate);
+
+    // Configurar el formulario para que sepa que estamos editando
+    $('#task-form').data('id', taskId); // Guardamos el ID de la tarea para enviarlo en la solicitud PUT
+    $('button[type="submit"]').text('Actualizar tarea'); // Cambiar el texto del botón
+  });
+  });
   </script>
 </body>
 </html>
