@@ -1,6 +1,12 @@
 body {
-  padding: 20px;
+  padding: 10px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background: linear-gradient(45deg, #f3ec78, #af4261);
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 a {
@@ -32,6 +38,8 @@ button {
   color: white;
   border: none;
   cursor: pointer;
+  margin: 5px;
+  border-radius: 5px;
 }
 
 button:hover {
@@ -54,10 +62,25 @@ li {
   background-color: red;
   color: white;
   border: none;
-  padding: 5px 10px;
+  padding: 10px;
   cursor: pointer;
+  margin: 5px;
+  border-radius: 5px;
 }
 
 .delete-btn:hover {
   background-color: darkred;
+}
+
+.cancel-btn {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.cancel-btn:hover {
+  background-color: darkred; /* Efecto hover */
 }

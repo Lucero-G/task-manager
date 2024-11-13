@@ -31,8 +31,10 @@
         <input type="date" id="due_date" name="due_date" required>
       </div>
       <button type="submit">Agregar tarea</button>
+      <button type="button" id="cancel-btn" class="cancel-btn">Cancelar</button>
     </form>
-
+  </div>
+  <div class="container">
     <h2>Tareas</h2>
     <ul id="task-list">
       <!-- Aquí se cargarán las tareas dinámicamente -->
@@ -153,6 +155,13 @@
     // Configurar el formulario para que sepa que estamos editando
     $('#task-form').data('id', taskId); // Guardamos el ID de la tarea para enviarlo en la solicitud PUT
     $('button[type="submit"]').text('Actualizar tarea'); // Cambiar el texto del botón
+  });
+  // Maneja la acción de cancelar la edición
+  $('#cancel-btn').click(function () {
+    // Limpia el formulario y elimina el ID de edición
+    $('#task-form')[0].reset();
+    $('#task-form').removeData('id'); 
+    $('button[type="submit"]').text('Agregar tarea'); // Restaurar el texto del botón
   });
   });
   </script>
