@@ -10,7 +10,7 @@
 <body>
   <div class="container">
     <h1>Gestión de Tareas</h1>
-    <form id="task-form" method="POST" action="/tasks">
+    <form id="task-form">
       <div>
         <label for="title">Título:</label>
         <input type="text" id="title" name="title" required>
@@ -35,26 +35,79 @@
 
     <h2>Tareas</h2>
     <ul id="task-list">
-      <% tasks.forEach(task => { %>
-        <li>
-          <strong><%= task.title %></strong> - <%= task.status %> <br>
-          <%= task.description %> <br>
-          <small>Vence: <%= task.due_date %></small>
-          <button class="delete-btn" data-id="<%= task.id %>">Eliminar</button>
-        </li>
-      <% }); %>
+      <!-- Aquí se cargarán las tareas dinámicamente -->
     </ul>
   </div>
 
   <script>
+    // Función para cargar y mostrar las tareas en la lista
+    function loadTasks() {
+      $.ajax({
+        url: '/tasks',
+        method: 'GET',
+        success: function (tasks) {
+          const taskList = $('#task-list');
+          taskList.empty(); // Vacía la lista antes de agregar nuevas tareas
+          
+          // Agrega cada tarea como un elemento en la lista
+          tasks.forEach(task => {
+            // Formatear la fecha para mostrar solo la parte de la fecha (YYYY-MM-DD)
+            const dueDate = new Date(task.due_date).toLocaleDateString('en-GB'); // 'en-CA' garantiza formato YYYY-MM-DD
+            taskList.append(`
+              <li>
+                <strong>${task.title}</strong> - ${task.status} <br>
+                ${task.description} <br>
+                <small>Vence: ${dueDate}</small>
+                <button class="delete-btn" data-id="${task.id}">Eliminar</button>
+              </li>
+            `);
+          });
+        },
+        error: function (error) {
+          console.error('Error al cargar tareas:', error);
+        }
+      });
+    }
+
+    // Llama a la función para cargar las tareas al cargar la página
     $(document).ready(function () {
-      $('.delete-btn').click(function () {
+      loadTasks();
+
+      // Maneja la eliminación de tareas
+      $('#task-list').on('click', '.delete-btn', function () {
         const taskId = $(this).data('id');
         $.ajax({
           url: '/tasks/' + taskId,
           method: 'DELETE',
           success: function () {
-            location.reload();  // Recargar la página después de eliminar la tarea
+            loadTasks(); // Recarga la lista de tareas después de eliminar una tarea
+          },
+          error: function (error) {
+            console.error('Error al eliminar la tarea:', error);
+          }
+        });
+      });
+
+      // Maneja el envío del formulario para agregar una nueva tarea
+      $('#task-form').submit(function (event) {
+        event.preventDefault();
+        const newTask = {
+          title: $('#title').val(),
+          description: $('#description').val(),
+          status: $('#status').val(),
+          due_date: $('#due_date').val()
+        };
+        $.ajax({
+          url: '/tasks',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify(newTask),
+          success: function () {
+            loadTasks(); // Recarga la lista de tareas después de agregar una nueva tarea
+            $('#task-form')[0].reset(); // Limpia el formulario
+          },
+          error: function (error) {
+            console.error('Error al agregar la tarea:', error);
           }
         });
       });
